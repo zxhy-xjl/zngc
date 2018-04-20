@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="net.chenlin.dp.watersaving.dao.FlushRecordMapper">
+
+    <select id="selectStatDayList" resultType="java.util.Map">
+		SELECT
+            SUM(t.flush_value) flushValue,DATE_FORMAT( t.start_time, "%Y-%m-%d" ) statDate
+        FROM
+            flush_record t
+        WHERE
+            t.end_time BETWEEN date_add(now(),interval -7 day) AND now()
+        GROUP BY DATE_FORMAT( t.start_time, "%Y-%m-%d" )
+	</select>
+
+    <select id="selectStatMonthList" resultType="java.util.Map">
+		SELECT
+            SUM(t.flush_value) flushValue,DATE_FORMAT( t.start_time, "%Y-%m" ) statDate
+        FROM
+            flush_record t
+         WHERE
+            t.end_time BETWEEN date_add(now(),interval -7 month) AND now()
+        GROUP BY DATE_FORMAT( t.start_time, "%Y-%m" )
+	</select>
+
+    <select id="selectStatTimesDayList" resultType="java.util.Map">
+        SELECT
+            count(t.toilet_id) flushValue,DATE_FORMAT( t.start_time, "%Y-%m-%d" ) statDate
+        FROM
+            flush_record t
+         WHERE
+            t.end_time BETWEEN date_add(now(),interval -7 month) AND now()
+        GROUP BY t.toilet_id,DATE_FORMAT( t.start_time, "%Y-%m-%d" )
+    </select>
+
+    <select id="selectCurDateFlush" resultType="FlushRecordEntity">
+        SELECT
+	        id, toilet_id, start_time, end_time, flush_value, create_time
+        FROM
+            flush_record t
+        WHERE
+            date(t.start_time) = curdate()
+    </select>
+    <select id="selectFlushRecordEntityByStart" resultType="FlushRecordEntity">
+        SELECT
+	        id, toilet_id, start_time, end_time, flush_value, create_time
+        FROM
+            flush_record t
+        WHERE
+            toilet_id = #{toiletId} and start_time is not null and end_time is null
+        ORDER BY id DESC
+    </select>
+</mapper>
